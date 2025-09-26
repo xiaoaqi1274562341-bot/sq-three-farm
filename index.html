@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/sq-three-farm/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seven-Pix-Three-Game</title>
+  <style>
+    @font-face {
+      font-family: 'MyCustomFont';
+      src: url('fonts/font.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    :root {
+      font-family: 'MyCustomFont', sans-serif;
+      color-scheme: light dark;
+      --loading-color: #FFFFFF;
+      --loading-background: rgb(174, 201, 114);
+      --loading-font-size: 3rem;
+      --img-size: 2.5rem;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .active-cursor {
+      cursor: pointer;
+    }
+
+    .default-cursor {
+      cursor: default;
+    }
+
+    #canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .loading-bar {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .loading-bar-inner {
+      display: flex;
+    }
+
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: var(--loading-font-size);
+      z-index: 10001;
+      background-color: var(--loading-background);
+      color: var(--loading-color);
+    }
+
+    .hide {
+      display: none !important;
+    }
+
+    .loading .progress {
+      margin-top: 1.5rem;
+    }
+
+    .loaded {
+      opacity: 0;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .tip {
+      position: absolute;
+      bottom: 4rem;
+      width: 100%;
+      text-align: center;
+      font-size: 1.2rem;
+      opacity: 0;
+    }
+
+    .controls {
+      position: absolute;
+      z-index: 10002;
+      width: 100%;
+      padding: 1rem;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      opacity: 0;
+    }
+
+    .right-music {
+      width: var(--img-size);
+      height: var(--img-size);
+      background-color: rgba(206, 206, 46, 1);
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .right-music img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    /* Mobile controls */
+
+    .mobile-control {
+      z-index: 500;
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      background: var(--default-bg);
+      height: 2rem;
+      width: 2rem;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      border: 3px solid white;
+      padding: 8px;
+      transition: background 0.4s ease-in;
+      transition-delay: 0.1s;
+    }
+
+    .left-arrow {
+      transform: translate(calc(-100% - 32px), -50%) rotate(270deg);
+    }
+
+    .right-arrow {
+      transform: translate(32px, -50%) rotate(90deg);
+    }
+
+    .up-arrow {
+      transform: translate(-50%, calc(-100% - 32px)) rotate(0deg);
+    }
+
+    .down-arrow {
+      transform: translate(-50%, 32px) rotate(180deg);
+    }
+
+    @media (max-width: 1100px) {
+
+      html,
+      body,
+      #canvas {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .mobile-control {
+        display: flex;
+      }
+    }
+  </style>
+  <script type="module" crossorigin src="/sq-three-farm/assets/index-B9miBW2M.js"></script>
+  <link rel="stylesheet" crossorigin href="/sq-three-farm/assets/index-BRXNZWUj.css">
+</head>
+
+<body>
+  <div class="loading">
+    <div class="loading-bar">
+      <div class="loading-bar">Loading</div>
+      <div class="loading-bar-inner">
+        <div class="loading-value">0</div>
+        <div class="loading-text">%</div>
+      </div>
+    </div>
+    <div class="loaded">
+      <div class="start">Start</div>
+    </div>
+    <div class="tip">
+      <div class="tip-text">Tip: Use the left and right arrow keys to control the player</div>
+    </div>
+  </div>
+  </div>
+  <div class="controls">
+    <div class="left"></div>
+    <div class="right">
+      <div class="right-music">
+        <img src="/sq-three-farm/assets/music.png" alt="" srcset="">
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="pixel-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">像素风格弹窗</h2>
+        <button class="close-button" id="closeModal">X</button>
+      </div>
+      <div class="modal-content">
+        <p>欢迎来到复古像素世界！这个弹窗采用了经典的8位游戏风格设计。</p>
+        <p>特点包括：</p>
+        <ul>
+          <li>像素化边框和阴影</li>
+          <li>复古配色方案</li>
+          <li>像素风格的按钮和交互效果</li>
+          <li>简单的打开/关闭动画</li>
+        </ul>
+        <p>点击下方按钮或右上角的X关闭弹窗。</p>
+      </div>
+      <div class="modal-footer">
+        <!-- <button class="modal-button cancel" id="cancelButton">取消</button> -->
+        <button class="modal-button confirm" id="confirmButton">确认</button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile controls -->
+  <div class="mobile-control up-arrow">
+    <svg width="45" height="34" viewBox="0 0 45 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="11.7988" y="17.072" width="5.64259" height="20.7622" transform="rotate(-90 11.7988 17.072)"
+        fill="#FEFEFE" />
+      <rect x="7.68359" y="22.7148" width="5.64259" height="28.811" transform="rotate(-90 7.68359 22.7148)"
+        fill="#FEFEFE" />
+      <rect x="3.93311" y="28.3574" width="5.64259" height="37.0427" transform="rotate(-90 3.93311 28.3574)"
+        fill="#FEFEFE" />
+      <rect y="34" width="5.64259" height="45" transform="rotate(-90 0 34)" fill="#FEFEFE" />
+      <rect x="15.5488" y="11.4297" width="5.64259" height="13.3537" transform="rotate(-90 15.5488 11.4297)"
+        fill="#FEFEFE" />
+      <rect x="19.0244" y="5.78711" width="5.64259" height="6.31098" transform="rotate(-90 19.0244 5.78711)"
+        fill="#FEFEFE" />
+    </svg>
+  </div>
+
+  <div class="mobile-control left-arrow">
+    <svg width="45" height="34" viewBox="0 0 45 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="11.7988" y="17.072" width="5.64259" height="20.7622" transform="rotate(-90 11.7988 17.072)"
+        fill="#FEFEFE" />
+      <rect x="7.68359" y="22.7148" width="5.64259" height="28.811" transform="rotate(-90 7.68359 22.7148)"
+        fill="#FEFEFE" />
+      <rect x="3.93311" y="28.3574" width="5.64259" height="37.0427" transform="rotate(-90 3.93311 28.3574)"
+        fill="#FEFEFE" />
+      <rect y="34" width="5.64259" height="45" transform="rotate(-90 0 34)" fill="#FEFEFE" />
+      <rect x="15.5488" y="11.4297" width="5.64259" height="13.3537" transform="rotate(-90 15.5488 11.4297)"
+        fill="#FEFEFE" />
+      <rect x="19.0244" y="5.78711" width="5.64259" height="6.31098" transform="rotate(-90 19.0244 5.78711)"
+        fill="#FEFEFE" />
+    </svg>
+  </div>
+  <div class="mobile-control right-arrow">
+    <svg width="45" height="34" viewBox="0 0 45 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="11.7988" y="17.072" width="5.64259" height="20.7622" transform="rotate(-90 11.7988 17.072)"
+        fill="#FEFEFE" />
+      <rect x="7.68359" y="22.7148" width="5.64259" height="28.811" transform="rotate(-90 7.68359 22.7148)"
+        fill="#FEFEFE" />
+      <rect x="3.93311" y="28.3574" width="5.64259" height="37.0427" transform="rotate(-90 3.93311 28.3574)"
+        fill="#FEFEFE" />
+      <rect y="34" width="5.64259" height="45" transform="rotate(-90 0 34)" fill="#FEFEFE" />
+      <rect x="15.5488" y="11.4297" width="5.64259" height="13.3537" transform="rotate(-90 15.5488 11.4297)"
+        fill="#FEFEFE" />
+      <rect x="19.0244" y="5.78711" width="5.64259" height="6.31098" transform="rotate(-90 19.0244 5.78711)"
+        fill="#FEFEFE" />
+    </svg>
+  </div>
+
+  <div class="mobile-control down-arrow">
+    <svg width="45" height="34" viewBox="0 0 45 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="11.7988" y="17.072" width="5.64259" height="20.7622" transform="rotate(-90 11.7988 17.072)"
+        fill="#FEFEFE" />
+      <rect x="7.68359" y="22.7148" width="5.64259" height="28.811" transform="rotate(-90 7.68359 22.7148)"
+        fill="#FEFEFE" />
+      <rect x="3.93311" y="28.3574" width="5.64259" height="37.0427" transform="rotate(-90 3.93311 28.3574)"
+        fill="#FEFEFE" />
+      <rect y="34" width="5.64259" height="45" transform="rotate(-90 0 34)" fill="#FEFEFE" />
+      <rect x="15.5488" y="11.4297" width="5.64259" height="13.3537" transform="rotate(-90 15.5488 11.4297)"
+        fill="#FEFEFE" />
+      <rect x="19.0244" y="5.78711" width="5.64259" height="6.31098" transform="rotate(-90 19.0244 5.78711)"
+        fill="#FEFEFE" />
+    </svg>
+  </div>
+  <canvas id="canvas"></canvas>
+</body>
+
+</html>
